@@ -14,8 +14,8 @@ Information about the project :
  **you need to implement Continuous Integration & Continuous Deployment using following tools:** <br>
  **✓Git- For version control for tracking changes in the code files** <br>
  **✓Jenkins- For continuous integration and continuous deployment** <br>
- **✓Docker- For containerizing applications ** <br>
- ** ✓ Ansible- Configuration management tools** <br>
+ **✓Docker- For containerizing applications** <br>
+ **✓ Ansible- Configuration management tools** <br>
  **✓Selenium- For automating tests on the deployed web application** <br>
  **✓Terraform- For creation of infrastructure.** <br>
  **✓Kubernetes– for running containerized application in managed cluster.** <br>
