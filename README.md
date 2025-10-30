@@ -13,9 +13,9 @@ Information about the project :
 
  **you need to implement Continuous Integration & Continuous Deployment using following tools:** <br>
  **✓Git- For version control for tracking changes in the code files** <br>
+ **✓Maven- To build the source code** <br>
  **✓Jenkins- For continuous integration and continuous deployment** <br>
  **✓Docker- For containerizing applications** <br>
- **✓ Ansible- Configuration management tools** <br>
  **✓Terraform- For creation of infrastructure.** <br>
  **✓Kubernetes– for running containerized application in managed cluster.** <br>
  This project will be about how to test the services and deploy code to dev/stage/prod etc, just on a click of button
