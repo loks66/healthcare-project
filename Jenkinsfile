@@ -1,13 +1,9 @@
 pipeline {
   agent any
-  environment {
-    AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-  }
   stages {
     stage('build the project') {
       steps {
-        git 'https://github.com/loks66/healthcare-project.git'
+        git branch: 'main', url: 'https://github.com/loks66/healthcare-project.git'
         sh 'mvn clean package'
       }
     }
@@ -30,18 +26,22 @@ pipeline {
     stage('Terraform Operations for test workspace') {
       steps {
         script {
+          withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
           sh '''
             terraform workspace select test || terraform workspace new test
-            terraform init
-            terraform plan
-            terraform destroy -auto-approve
+            terraform init -no-color
+            terraform plan -no-color
+            terraform destroy -auto-approve -no-color
           '''
+          }
         }
       }
     }
     stage('Terraform destroy & apply for test workspace') {
       steps {
-        sh 'terraform apply -auto-approve'
+        withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+        sh 'terraform apply -auto-approve -no-color'
+        }
       }
     }
     stage('get kubeconfig') {
@@ -64,18 +64,22 @@ pipeline {
       }
       steps {
         script {
+          withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
           sh '''
             terraform workspace select prod || terraform workspace new prod
-            terraform init
-            terraform plan
-            terraform destroy -auto-approve
+            terraform init -no-color
+            terraform plan -no-color
+            terraform destroy -auto-approve -no-color
           '''
+          }
         }
       }
     }
     stage('Terraform destroy & apply for production workspace') {
       steps {
+        withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
         sh 'terraform apply -auto-approve'
+        }
       }
     }
     stage('get kubeconfig for production') {

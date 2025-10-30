@@ -39,5 +39,15 @@ module "eks" {
     }
   }
 
+  node_security_group_additional_rules = {
+    ingress_app_8080 = {
+      description = "Allow inbound app traffic on port 8080"
+      type        = "ingress"
+      protocol    = "tcp"
+      from_port   = 30082
+      to_port     = 30082
+      cidr_blocks = ["0.0.0.0/0"] # or limit to your internal network CIDR
+    }
+  }
   tags = local.tags
 }
