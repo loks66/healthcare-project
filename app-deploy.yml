@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: capstone-app-container
-        image: laxg66/capstone02:v1
+        image: laxg66/healthcare-tg:v1
         ports:
         - containerPort: 8082
 ---
