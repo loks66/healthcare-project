@@ -1,0 +1,64 @@
+pipeline {
+  agent any
+  stages {
+    stage('build the project') {
+      steps {
+        git branch: 'main', url: 'https://github.com/loks66/healthcare-project.git'
+        sh 'mvn clean package'
+      }
+    }
+    stage('Building docker image') {
+      steps {
+        script {
+          sh 'docker build -t laxg66/capstone02:v1 .'
+          sh 'docker images'
+        }
+      }
+    }
+    stage('push to docker-hub') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'docker-creds', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+          sh "echo $PASS | docker login -u $USER --password-stdin"
+          sh 'docker push laxg66/capstone02:v1'
+        }
+      }
+    }
+    stage('Terraform Operations for test workspace') {
+      steps {
+        script {
+          withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+          sh '''
+            terraform workspace select test || terraform workspace new test
+            terraform init -no-color
+            terraform plan -no-color
+            terraform destroy -auto-approve -no-color
+          '''
+          }
+        }
+      }
+    }
+    stage('Terraform destroy & apply for test workspace') {
+      steps {
+        withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+        sh 'terraform apply -auto-approve -no-color'
+        }
+      }
+    }
+    stage('get kubeconfig') {
+      steps {
+          withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+          sh 'aws eks update-kubeconfig --region us-east-1 --name test-cluster'
+          sh 'kubectl get nodes'
+        }
+     }
+    }
+    stage('Deploying the application') {
+      steps {
+          withCredentials([string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+          sh 'kubectl apply -f app-deploy.yml'
+          sh 'kubectl get svc'
+          }
+      }
+    }
+  }
+}
